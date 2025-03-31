@@ -153,16 +153,15 @@ class HelpSelect(discord.ui.Select):
 
             # Mensaje inicial en el ticket
             embed = discord.Embed(
-                title=f"Ticket de {category_name}",
-                description="Por favor describe tu consulta en detalle.\nEl equipo te responderá pronto.",
-                color=discord.Color.blue()
+                title=f"Por favor describe tu consulta en detalle.\nEl equipo te responderá pronto",
+                color=discord.Color.from_rgb(39, 118, 223)
             )
             embed.set_footer(text=f"Usuario: {interaction.user.display_name}")
             
             # Obtener el bot desde interaction.client
             bot = interaction.client
             await channel.send(
-                content=f"👋 {interaction.user.mention}, bienvenid@ a tu ticket.",
+                content=f"Bienvenid@ {interaction.user.mention}, a tu ticket de {interaction.channel.category.name}.",
                 embed=embed,
                 view=TicketView(bot)
             )
@@ -291,7 +290,7 @@ class ConfirmClose(discord.ui.View):
         # 7. Mensaje de confirmación
         embed = discord.Embed(
             title="🔒 Ticket Cerrado",
-            description="Este ticket ha sido cerrado.\nSi se desea **reabrir** este ticket, haga click en el botón de *reabir*\nEn caso negativo, porfavor, elimine el ticket.",
+            description="Este ticket ha sido cerrado.\nSi se desea **Re-Abrir** este ticket, haga click en el botón pertinente de *Re-Abrir*\nEn caso negativo, porfavor, elimine el ticket.",
             color=discord.Color.red()
         )
         await interaction.channel.send(embed=embed, view=PostCloseActions(self.bot))
@@ -697,4 +696,3 @@ async def setup(bot):
     cog = TicketSystem(bot)
     await bot.add_cog(cog)
     await cog.setup_hook()
-    
