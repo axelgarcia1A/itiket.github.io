@@ -3,7 +3,41 @@ from discord.ext import commands
 from discord import app_commands, utils
 import asyncio
 import os
+import json
 from datetime import datetime
+from pathlib import Path
+
+# =============================================
+# CLASE PARA CONFIGURACIÓN
+# =============================================
+class TicketConfig:
+    def __init__(self):
+        self.config_path = Path('./cogs/json/ticket.json')
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        if not self.config_path.exists():
+            with open(self.config_path, 'w') as f:
+                json.dump({}, f)
+    
+    def get_guild_config(self, guild_id):
+        with open(self.config_path, 'r') as f:
+            config = json.load(f)
+            return config.get(str(guild_id), {})
+    
+    def update_guild_config(self, guild_id, **kwargs):
+        with open(self.config_path, 'r+') as f:
+            config = json.load(f)
+            guild_id = str(guild_id)
+            
+            if guild_id not in config:
+                config[guild_id] = {"modrol": None, "transcript_id": None}
+            
+            for key, value in kwargs.items():
+                config[guild_id][key] = value
+            
+            f.seek(0)
+            json.dump(config, f, indent=4)
+            f.truncate()
 
 # =============================================
 # CLASE PARA EL SELECT DE AYUDA
@@ -54,11 +88,13 @@ class HelpSelect(discord.ui.Select):
                 )
                 return
 
-            # Obtener rol de moderador
-            modrole = interaction.guild.get_role(1333787751031635968)
+            # Obtener configuración del servidor
+            config = TicketConfig().get_guild_config(interaction.guild.id)
+            modrole = interaction.guild.get_role(config.get("modrol"))
+            
             if not modrole:
                 return await interaction.response.send_message(
-                    "❌ Rol de moderador no encontrado",
+                    "❌ Rol de moderador no configurado. Usa /setup para configurarlo.",
                     ephemeral=True
                 )
 
@@ -75,6 +111,7 @@ class HelpSelect(discord.ui.Select):
             
             if not category:
                 category = await interaction.guild.create_category(category_name)
+            
             closed_category_name = f"Closed-{category_name}"
             closed_category = utils.get(interaction.guild.categories, name=closed_category_name)
 
@@ -176,6 +213,7 @@ class TicketView(discord.ui.View):
 # =============================================
 # VISTA DE CONFIRMACIÓN DE CIERRE
 # =============================================
+
 class ConfirmClose(discord.ui.View):
     def __init__(self, bot):
         super().__init__(timeout=None)
@@ -190,38 +228,73 @@ class ConfirmClose(discord.ui.View):
     async def confirm_close(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.message.delete()
         
-        # Verificar si el canal ya está cerrado
+        # 1. Verificar si ya está cerrado
         if interaction.channel.name.startswith("🎫┇closed-"):
-            return await interaction.channel.send(
-                "⚠️ Este ticket ya está cerrado",
-                delete_after=5
-            )
+            return await interaction.channel.send("⚠️ Este ticket ya está cerrado", delete_after=5)
         
-        # Obtener categoría Closed-
-        current_category = interaction.channel.category
-        closed_category_name = f"Closed-{current_category.name}" if current_category else "Closed-Tickets"
+        # 2. Obtener rol de moderador
+        config = TicketConfig().get_guild_config(interaction.guild.id)
+        modrole = interaction.guild.get_role(config.get("modrol"))
+        if not modrole:
+            return await interaction.channel.send("❌ Rol de moderador no configurado", delete_after=10)
+        
+        # 3. Encontrar la categoría "Closed" correspondiente
+        original_category = interaction.channel.category
+        closed_category_name = f"Closed-{original_category.name}"
         closed_category = utils.get(interaction.guild.categories, name=closed_category_name)
         
+        # Si no existe la categoría closed, la creamos
         if not closed_category:
             closed_category = await interaction.guild.create_category(closed_category_name)
+            # Configurar permisos para la nueva categoría
+            await closed_category.set_permissions(
+                interaction.guild.default_role,
+                view_channel=False,
+                send_messages=False
+            )
+            await closed_category.set_permissions(
+                modrole,
+                view_channel=True,
+                manage_channels=True,
+                send_messages=True
+            )
         
-        # Cambiar nombre y categoría
-        new_name = interaction.channel.name.replace("🎫┇", "🎫┇closed-")
+        # 4. Configurar permisos del canal
+        overwrites = {
+            interaction.guild.default_role: discord.PermissionOverwrite(
+                view_channel=False  # Los nuevos miembros no ven el ticket
+            ),
+            modrole: discord.PermissionOverwrite(
+                view_channel=True,
+                send_messages=True,  # Mods pueden escribir
+                manage_messages=True
+            )
+        }
+        
+        # 5. Mantener acceso a TODOS los participantes actuales
+        async for message in interaction.channel.history(limit=200):
+            if not message.author.bot and message.author not in overwrites:
+                overwrites[message.author] = discord.PermissionOverwrite(
+                    view_channel=True,    # Pueden VER
+                    send_messages=False,  # NO pueden ESCRIBIR
+                    read_message_history=True
+                )
+        
+        # 6. Aplicar cambios (incluyendo mover a la categoría closed)
         await interaction.channel.edit(
-            category=closed_category,
-            name=new_name[:100],
-            reason=f"Ticket cerrado por {interaction.user}"
+            name=f"🎫┇closed-{interaction.channel.name.split('┇')[-1]}",
+            category=closed_category,  # Esta línea mueve el canal a la categoría closed
+            overwrites=overwrites,
+            reason=f"Cierre de ticket por {interaction.user}"
         )
         
-        # Enviar embed de cierre
+        # 7. Mensaje de confirmación
         embed = discord.Embed(
             title="🔒 Ticket Cerrado",
-            description="Elige una opción:",
+            description="Este ticket ha sido cerrado.\nSi se desea **reabrir** este ticket, haga click en el botón de *reabir*\nEn caso negativo, porfavor, elimine el ticket.",
             color=discord.Color.red()
         )
-        
-        view = PostCloseActions(self.bot)
-        await interaction.channel.send(embed=embed, view=view)
+        await interaction.channel.send(embed=embed, view=PostCloseActions(self.bot))
 
     @discord.ui.button(
         label="Cancelar",
@@ -233,12 +306,25 @@ class ConfirmClose(discord.ui.View):
         await interaction.message.delete()
 
 # =============================================
-# ACCIONES POST-CIERRE (VERSIÓN SIMPLIFICADA)
+# ACCIONES POST-CIERRE
 # =============================================
 class PostCloseActions(discord.ui.View):
     def __init__(self, bot):
         super().__init__(timeout=None)
         self.bot = bot
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        """Verifica que el usuario tenga el rol de moderador."""
+        config = TicketConfig().get_guild_config(interaction.guild.id)
+        modrole = interaction.guild.get_role(config.get("modrol"))
+        
+        if not modrole or modrole not in interaction.user.roles:
+            await interaction.response.send_message(
+                "❌ No tienes permisos para realizar esta acción.",
+                ephemeral=True
+            )
+            return False
+        return True
 
     @discord.ui.button(
         label="Eliminar Ticket",
@@ -247,20 +333,51 @@ class PostCloseActions(discord.ui.View):
         emoji="🗑️"
     )
     async def delete_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        
-        # 1. Primero generar y enviar el transcript
-        transcript_success = await self._generate_transcript(interaction)
-        
-        if not transcript_success:
-            # Si falla el transcript, no continuar con la eliminación
-            return await interaction.followup.send(
-                "❌ Error al generar transcript, no se eliminó el ticket",
+        await interaction.response.defer()  # Diferir la respuesta inicial
+
+        config = TicketConfig().get_guild_config(interaction.guild.id)
+        TRANSCRIPT_CHA = config.get("transcript_id")
+
+        if not TRANSCRIPT_CHA:
+            await interaction.followup.send(
+                "❌ Canal de transcripts no configurado. Usa el panel de configuración para configurarlo.",
                 ephemeral=True
             )
-        
-        # 2. Eliminar el mensaje original de confirmación
+            return False
+
+        # Crear y enviar embed de espera
+        waiting = discord.Embed(
+            title='Generando transcript...',
+            description=f'El transcript está siendo generado para\nel canal <#{TRANSCRIPT_CHA}>, por favor espere',
+            color=discord.Color.from_rgb(39, 118, 223),
+        )
+        file = discord.File("./cogs/banner/standard.gif", filename="standard.gif")
+        waiting.set_image(url="attachment://standard.gif")
         await interaction.delete_original_response()
+        # Enviar el embed y guardar el mensaje para poder borrarlo después
+        waiting_message = await interaction.channel.send(embed=waiting, file=file)
+
+        try:
+            # Generar el transcript
+            transcript_success = await self._generate_transcript(interaction)
+            
+            # Borrar el mensaje de espera
+            await waiting_message.delete()
+            
+            # Aquí podrías añadir más lógica según el resultado de transcript_success
+            if not transcript_success:
+                await interaction.followup.send(
+                    "❌ Error al generar el transcript",
+                    ephemeral=True
+                )
+                return False
+                
+        except Exception as e:
+            await interaction.followup.send(
+                f"❌ Ocurrió un error: {str(e)}",
+                ephemeral=True
+            )
+            return False
         
         # 3. Enviar nuevo embed de cuenta regresiva
         countdown = discord.Embed(
@@ -283,75 +400,149 @@ class PostCloseActions(discord.ui.View):
 
     async def _generate_transcript(self, interaction: discord.Interaction) -> bool:
         """Función interna para generar el transcript. Devuelve True si fue exitoso."""
-        TRANSCRIPT_CHANNEL_ID = 1354891719400886472  # REEMPLAZA CON TU ID
+        config = TicketConfig().get_guild_config(interaction.guild.id)
+        TRANSCRIPT_CHANNEL_ID = config.get("transcript_id")
+        
+        if not TRANSCRIPT_CHANNEL_ID:
+            await interaction.followup.send(
+                "❌ Canal de transcripts no configurado. Usa el panel de configuración para configurarlo.",
+                ephemeral=True
+            )
+            return False
+            
         SAVE_FOLDER = "transcripts"
-        filename = f"{interaction.channel.id}.txt"
+        os.makedirs(SAVE_FOLDER, exist_ok=True)
+        filename = f"transcript_{interaction.channel.id}.txt"
         filepath = os.path.join(SAVE_FOLDER, filename)
         
         try:
-            # 1. Preparar sistema de archivos
-            os.makedirs(SAVE_FOLDER, exist_ok=True)
-            
-            # 2. Verificar si ya existe
-            transcript_channel = self.bot.get_channel(TRANSCRIPT_CHANNEL_ID)
+            # Obtener canal de transcripts
+            transcript_channel = self.bot.get_channel(int(TRANSCRIPT_CHANNEL_ID))
             if not transcript_channel:
                 print(f"[ERROR] Canal de transcripts no encontrado: {TRANSCRIPT_CHANNEL_ID}")
                 return False
-                
-            # 3. Generar contenido
+
+            # Obtener el creador REAL del ticket (usuario mencionado en el primer mensaje del bot)
+            creator = None
+            async for message in interaction.channel.history(limit=10, oldest_first=True):
+                if message.author == self.bot.user and message.mentions:
+                    creator = message.mentions[0]  # El usuario mencionado en el primer mensaje del bot
+                    break
+            
+            # Si no encontramos al creador, usamos el usuario que está cerrando el ticket como fallback
+            if not creator:
+                creator = interaction.user
+
+            # Obtener tiempos exactos
+            creation_time = interaction.channel.created_at
+            current_time = datetime.now()
+            time_format = '%Y-%m-%d %H:%M:%S'
+            
+            # Procesar mensajes y participantes
+            participants = set()
+            category_name = interaction.channel.category.name.replace("Closed-", "")
+            channel_name = interaction.channel.name.replace("🎫┇", "")
             transcript_content = [
                 f"=== TRANSCRIPT DEL TICKET ===\n",
-                f"Canal: {interaction.channel.name} (ID: {interaction.channel.id})\n",
-                f"Creado: {interaction.channel.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n",
-                f"Generado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n",
-                f"Por: {interaction.user.display_name} (ID: {interaction.user.id})\n",
+                f"• Canal: {channel_name}\n",
+                f"• ID del Canal: {interaction.channel.id}\n",
+                f"• Categoría: {category_name}\n"  # <-- Nombre limpio
+                f"• Creado por: {creator.display_name} (ID: {creator.id})\n",
                 "="*50 + "\n\n"
             ]
-            
-            # Procesar mensajes
+
+            # Procesar historial de mensajes
             async for message in interaction.channel.history(limit=None, oldest_first=True):
+                participants.add(message.author)
+                
                 entry = [
-                    f"[{message.created_at.strftime('%Y-%m-%d %H:%M:%S')}] ",
-                    f"{message.author.display_name} ({message.author.id}):\n"
+                    f"[{message.created_at.strftime(time_format)}] ",
+                    f"{message.author.display_name} ({message.author.id}):\n",
+                    f"{message.content}\n" if message.content else ""
                 ]
                 
-                if message.content:
-                    entry.append(f"{message.content}\n")
                 if message.edited_at:
-                    entry.append(f"(Editado: {message.edited_at.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    entry.append(f"(Editado: {message.edited_at.strftime(time_format)})\n")
+                
                 if message.attachments:
                     entry.append("Archivos adjuntos:\n")
-                    entry.extend([f"- {a.filename}: {a.url}\n" for a in message.attachments])
+                    entry.extend(f"- {a.filename}: {a.url}\n" for a in message.attachments)
+                
                 if message.embeds:
                     entry.append("Contenido embebido:\n")
                     for embed in message.embeds:
-                        if embed.title:
-                            entry.append(f"Título: {embed.title}\n")
-                        if embed.description:
-                            entry.append(f"Descripción: {embed.description}\n")
+                        if embed.title: entry.append(f"Título: {embed.title}\n")
+                        if embed.description: entry.append(f"Descripción: {embed.description}\n")
                         for field in embed.fields:
                             entry.append(f"{field.name}: {field.value}\n")
                 
                 transcript_content.extend(entry)
                 transcript_content.append("-"*50 + "\n")
 
-            # 4. Guardar archivo localmente
+            # Guardar archivo local
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.writelines(transcript_content)
 
-            # 5. Enviar al canal de transcripts
-            with open(filepath, 'rb') as f:
-                await transcript_channel.send(
-                    content=f"📄 Transcript de {interaction.channel.mention}",
-                    file=discord.File(f, filename=f"transcript_{interaction.channel.name}.txt")
+            # Crear embed visual
+            category_name = interaction.channel.category.name.replace("Closed-", "")
+            channel_name = interaction.channel.name.replace("🎫┇", "")
+            transcript_embed = discord.Embed(
+                title=f"📝 Transcript de {category_name}",  # Usamos el nombre limpio
+                description=f'{channel_name}',
+                color=discord.Color.from_rgb(39, 118, 223),
+                timestamp=current_time
+            )
+            
+            # Configurar ambas imágenes (thumbnail y banner)
+            files = []
+            try:
+                # Thumbnail (logo pequeño)
+                logo_file = discord.File("./cogs/banner/logo.png", filename="logo.png")
+                transcript_embed.set_thumbnail(url="attachment://logo.png")
+                transcript_embed.set_footer(
+                    text=f"Ticket ID: {interaction.channel.id}",
+                    icon_url="attachment://logo.png"
                 )
+                files.append(logo_file)
+                
+                # Banner grande
+                banner_file = discord.File("./cogs/banner/standard.gif", filename="standard.gif")
+                transcript_embed.set_image(url="attachment://standard.gif")
+                files.append(banner_file)
+            except Exception as e:
+                print(f"[WARNING] No se pudieron cargar imágenes: {e}")
+
+            # Añadir campos al embed
+            transcript_embed.add_field(
+                name="👤 Creador del Ticket",
+                value=f"{creator.mention}\nID: {creator.id}",
+                inline=True
+            )
+            
+            participants_text = "\n".join(f"• {p.display_name} (ID: {p.id})" for p in participants if p != creator)
+            transcript_embed.add_field(
+                name=f"👥 Participantes ({len(participants)-1})",
+                value=participants_text or "No hay otros participantes",
+                inline=False
+            )
+
+            # Enviar primero el embed con las imágenes
+            await transcript_channel.send(
+                embed=transcript_embed,
+                files=files
+            )
+            
+            # Luego enviar el archivo TXT por separado
+            await transcript_channel.send(
+                file=discord.File(filepath)
+            )
             
             return True
             
         except Exception as e:
-            print(f"[ERROR-TRANSCRIPT] {type(e).__name__}: {e}")
+            print(f"[ERROR-TRANSCRIPT] {datetime.now().strftime(time_format)} - Error:", e)
             await interaction.followup.send(
-                f"❌ Error al generar transcript: {str(e)}",
+                "❌ Error al generar el transcript. Contacta con un administrador.",
                 ephemeral=True
             )
             return False
@@ -365,53 +556,44 @@ class PostCloseActions(discord.ui.View):
     async def reopen_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         
-        # Verificar si ya está abierto
+        # 1. Verificar estado
         if not interaction.channel.name.startswith("🎫┇closed-"):
-            return await interaction.followup.send(
-                "⚠️ Este ticket ya está abierto",
-                ephemeral=True,
-                delete_after=5
+            return await interaction.followup.send("⚠️ Ya está abierto", ephemeral=True, delete_after=5)
+        
+        # 2. Obtener configuración
+        config = TicketConfig().get_guild_config(interaction.guild.id)
+        modrole = interaction.guild.get_role(config.get("modrol"))
+        
+        # 3. Configurar permisos de reapertura
+        overwrites = {
+            interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+            modrole: discord.PermissionOverwrite(
+                view_channel=True,
+                send_messages=True,
+                manage_messages=True
             )
+        }
         
-        # Obtener categoría original
-        current_category = interaction.channel.category
-        if not current_category or not current_category.name.startswith("Closed-"):
-            return await interaction.followup.send(
-                "❌ No se puede determinar la categoría original",
-                ephemeral=True,
-                delete_after=5
-            )
+        # 4. Restaurar escritura a participantes
+        async for message in interaction.channel.history(limit=200):
+            if not message.author.bot and message.author not in overwrites:
+                overwrites[message.author] = discord.PermissionOverwrite(
+                    view_channel=True,
+                    send_messages=True,  # Ahora SÍ pueden escribir
+                    read_message_history=True
+                )
         
-        original_category_name = current_category.name.replace("Closed-", "")
-        original_category = utils.get(interaction.guild.categories, name=original_category_name)
-        
-        if not original_category:
-            return await interaction.followup.send(
-                "❌ No se encontró la categoría original",
-                ephemeral=True,
-                delete_after=5
-            )
-        
-        # Restaurar nombre y categoría
-        new_name = interaction.channel.name.replace("🎫┇closed-", "🎫┇")
+        # 5. Aplicar cambios
         await interaction.channel.edit(
-            category=original_category,
-            name=new_name[:100],
-            reason=f"Ticket reabierto por {interaction.user}"
+            name=f"🎫┇{interaction.channel.name.split('closed-')[-1]}",
+            overwrites=overwrites,
+            reason=f"Reapertura por {interaction.user}"
         )
         
-        # Enviar confirmación temporal
-        embed = discord.Embed(
-            title="🔓 Ticket Reabierto",
-            description="Ahora puedes continuar con tu consulta.",
-            color=discord.Color.green()
-        )
-        
-        msg = await interaction.channel.send(embed=embed)
-        await interaction.delete_original_response()
-        await asyncio.sleep(3)
-        await msg.delete()
-        
+        # 6. Confirmación efímera
+        await interaction.followup.send("✅ Ticket reabierto correctamente", ephemeral=True)
+        await interaction.channel.send(f"🔓 {interaction.user.mention} ha reabierto este ticket")
+
 # =============================================
 # COG PRINCIPAL
 # =============================================
@@ -419,6 +601,7 @@ class TicketSystem(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.persistent_views_added = False
+        self.config = TicketConfig()
 
     async def setup_hook(self):
         if not self.persistent_views_added:
@@ -439,12 +622,42 @@ class TicketSystem(commands.Cog):
         self.bot.add_view(PostCloseActions(self.bot))
         print("[Tickets] Vistas persistentes re-registradas en on_ready")
 
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        self.config.update_guild_config(guild.id)
+        print(f"[Tickets] Configuración creada para el servidor: {guild.name} ({guild.id})")
+
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild):
+        with open(self.config.config_path, 'r+') as f:
+            config = json.load(f)
+            config.pop(str(guild.id), None)
+            f.seek(0)
+            json.dump(config, f, indent=4)
+            f.truncate()
+        print(f"[Tickets] Configuración eliminada para el servidor: {guild.name} ({guild.id})")
+
     @app_commands.command(name="panel", description="Crea el panel de tickets")
     @app_commands.default_permissions(manage_guild=True)
     @app_commands.checks.cooldown(1, 60, key=lambda i: (i.guild_id))
     @app_commands.checks.bot_has_permissions(manage_channels=True)
-    async def ticket_panel(self, interaction: discord.Interaction):
+    async def ticket_panel(self, interaction: discord.Interaction, 
+                          modrol: discord.Role, 
+                          transcript_channel: discord.TextChannel):
+        self.config.update_guild_config(
+            interaction.guild.id,
+            modrol=modrol.id,
+            transcript_id=transcript_channel.id
+        )
         try:
+            # Verificar configuración
+            config = self.config.get_guild_config(interaction.guild.id)
+            if not config.get("modrol") or not config.get("transcript_id"):
+                return await interaction.response.send_message(
+                    "❌ Primero debes configurar el sistema con /setup",
+                    ephemeral=True
+                )
+
             embed = discord.Embed(
                 title="Creando panel....",
                 description="El panel de tickets se está creando......",
@@ -484,3 +697,4 @@ async def setup(bot):
     cog = TicketSystem(bot)
     await bot.add_cog(cog)
     await cog.setup_hook()
+    

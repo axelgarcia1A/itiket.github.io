@@ -1,0 +1,20 @@
+=== TRANSCRIPT DEL TICKET ===
+• Canal: closed-sop-_darmon_
+• ID del Canal: 1356286098111729835
+• Categoría: Soporte
+• Creado por: Darmon ×͜× (ID: 1305317724511141898)
+==================================================
+
+[2025-03-31 15:16:44] iTiket (1325890689468338237):
+👋 <@1305317724511141898>, bienvenid@ a tu ticket.
+Contenido embebido:
+Título: Ticket de Soporte
+Descripción: Por favor describe tu consulta en detalle.
+El equipo te responderá pronto.
+--------------------------------------------------
+[2025-03-31 15:16:50] iTiket (1325890689468338237):
+Contenido embebido:
+Título: Generando transcript...
+Descripción: El transcript está siendo generado para
+el canal <#1351953228694159410>, por favor espere
+--------------------------------------------------

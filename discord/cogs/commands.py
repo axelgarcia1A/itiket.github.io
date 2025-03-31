@@ -13,6 +13,7 @@ class Commands(commands.Cog):
     @app_commands.command(name='help', description='Comandos del bot')
     @app_commands.checks.has_permissions(manage_messages=True)
     async def help(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         embed = discord.Embed(
             title='Guía de comandos:',
             color=discord.Color.from_rgb(39, 118, 223)  # Color movido aquí
@@ -31,19 +32,42 @@ class Commands(commands.Cog):
         
         file = discord.File("./cogs/banner/standard.gif", filename="standard.gif")
         embed.set_image(url="attachment://standard.gif")
-        await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
+        await interaction.followup.send(embed=embed, file=file, ephemeral=True)
     
     @app_commands.command(name='informacion', description='Revisa nuestros servicios')
     async def information(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         embed = discord.Embed(title='Información', color=discord.Color.from_rgb(39, 118, 223))
         embed.add_field(name='<:itiket:1352670742772318290> Web', value='Comprueba nuestra web clicando [aquí](https://www.itcket.cat)', inline=False)
         embed.add_field(name='<:discord:1352670613587755159> Discord', value='Para unirte a nuestro servidor de discord, haz click [aquí](https://discord.gg/mAFjh7cf5t)', inline=False)
         embed.add_field(name='<:telegram:1352670399485181972> Telegram', value='Para conectactar con nuestro bot de telegram, busca en la app "iTicket Telegram"', inline=False)
         file = discord.File("./cogs/banner/standard.gif", filename="standard.gif")
         embed.set_image(url="attachment://standard.gif")
-        await interaction.response.send_message(embed=embed, file=file)
+        await interaction.followup.send(embed=embed, file=file)
 
-
+    @app_commands.command(name='sell', description='Comando a poner cuando se realize un pago')
+    @app_commands.checks.has_permissions(manage_messages=True)
+    async def buy(self, interaction: discord.Interaction, user: discord.User):
+        rol = interaction.guild.get_role(1356305795993571560)  # Usar interaction.guild en lugar de user.guild
+        if rol is None:
+            return await interaction.response.send_message("No se encontró el rol especificado", ephemeral=True)
+        
+        await interaction.response.defer()
+        await interaction.delete_original_response()
+        message = await interaction.channel.send(user.mention)
+        await message.delete()
+        
+        embed = discord.Embed(
+            title='¡Pago Recibido!',   
+            description=f'¡Muchas grácias {user.mention} por realizar la compra!\nEn breves momentos un miembro del equipo de desarrolladores te indicará los siguientes pasos.',
+            color=discord.Color.from_rgb(39, 118, 223)
+        )
+        file = discord.File("./cogs/banner/standard.gif", filename="standard.gif")
+        embed.set_image(url="attachment://standard.gif")
+        await interaction.channel.send(embed=embed, file=file)
+        
+        # Añadir el rol al usuario mencionado, no al que ejecutó el comando
+        await user.add_roles(rol)  # Pasar el objeto Role, no el ID
 
 async def setup(bot):
     await bot.add_cog(Commands(bot))
