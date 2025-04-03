@@ -1,0 +1,20 @@
+=== TRANSCRIPT DEL TICKET ===
+• Canal: closed-dud-_darmon_
+• ID del Canal: 1357357443193241641
+• Categoría: Dudas
+• Creado por: Darmon ×͜× (ID: 1305317724511141898)
+==================================================
+
+[2025-04-03 14:13:53] iTiket (1325890689468338237):
+Bienvenid@ <@1305317724511141898>, a tu ticket de Dudas.
+Contenido embebido:
+Título: Sistema de ticketing de iTiket
+Descripción: Por favor describe tu consulta en detalle.
+El equipo te responderá pronto
+--------------------------------------------------
+[2025-04-03 14:14:01] iTiket (1325890689468338237):
+Contenido embebido:
+Título: Generando transcript...
+Descripción: El transcript está siendo generado para
+el canal <#1354891719400886472>, por favor espere
+--------------------------------------------------

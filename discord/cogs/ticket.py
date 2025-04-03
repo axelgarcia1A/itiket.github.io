@@ -74,7 +74,6 @@ class HelpSelect(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         try:
-            # Verificar tickets existentes
             ticket_type = self.values[0]
             user_tickets = [
                 channel for channel in interaction.guild.text_channels 
@@ -88,7 +87,6 @@ class HelpSelect(discord.ui.Select):
                 )
                 return
 
-            # Obtener configuración del servidor
             config = TicketConfig().get_guild_config(interaction.guild.id)
             modrole = interaction.guild.get_role(config.get("modrol"))
             
@@ -98,14 +96,12 @@ class HelpSelect(discord.ui.Select):
                     ephemeral=True
                 )
 
-            # Mapeo de categorías
             category_map = {
                 "sop": "Soporte",
                 "dud": "Dudas",
                 "aport": "Aportaciones"
             }
             
-            # Crear categoría si no existe
             category_name = category_map[ticket_type]
             category = utils.get(interaction.guild.categories, name=category_name)
             
@@ -118,7 +114,6 @@ class HelpSelect(discord.ui.Select):
             if not closed_category:
                 closed_category = await interaction.guild.create_category(closed_category_name)
 
-            # Configurar permisos del canal
             overwrites = {
                 interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
                 interaction.user: discord.PermissionOverwrite(
@@ -137,7 +132,6 @@ class HelpSelect(discord.ui.Select):
                 )
             }
 
-            # Crear canal del ticket
             channel = await interaction.guild.create_text_channel(
                 name=f"🎫┇{ticket_type}-{interaction.user.name}",
                 category=category,
@@ -145,23 +139,21 @@ class HelpSelect(discord.ui.Select):
                 reason=f"Ticket creado por {interaction.user}"
             )
 
-            # Mensaje de confirmación
             await interaction.response.send_message(
                 f"✅ Ticket creado: {channel.mention}",
                 ephemeral=True
             )
 
-            # Mensaje inicial en el ticket
             embed = discord.Embed(
-                title=f"Por favor describe tu consulta en detalle.\nEl equipo te responderá pronto",
+                title=f'Sistema de ticketing de {interaction.guild.name}',
+                description=f"Por favor describe tu consulta en detalle.\nEl equipo te responderá pronto",
                 color=discord.Color.from_rgb(39, 118, 223)
             )
             embed.set_footer(text=f"Usuario: {interaction.user.display_name}")
             
-            # Obtener el bot desde interaction.client
             bot = interaction.client
             await channel.send(
-                content=f"Bienvenid@ {interaction.user.mention}, a tu ticket de {interaction.channel.category.name}.",
+                content=f"Bienvenid@ {interaction.user.mention}, a tu ticket de {category}.",
                 embed=embed,
                 view=TicketView(bot)
             )
@@ -226,26 +218,21 @@ class ConfirmClose(discord.ui.View):
     )
     async def confirm_close(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.message.delete()
-        
-        # 1. Verificar si ya está cerrado
+
         if interaction.channel.name.startswith("🎫┇closed-"):
             return await interaction.channel.send("⚠️ Este ticket ya está cerrado", delete_after=5)
-        
-        # 2. Obtener rol de moderador
+
         config = TicketConfig().get_guild_config(interaction.guild.id)
         modrole = interaction.guild.get_role(config.get("modrol"))
         if not modrole:
             return await interaction.channel.send("❌ Rol de moderador no configurado", delete_after=10)
-        
-        # 3. Encontrar la categoría "Closed" correspondiente
+
         original_category = interaction.channel.category
         closed_category_name = f"Closed-{original_category.name}"
         closed_category = utils.get(interaction.guild.categories, name=closed_category_name)
-        
-        # Si no existe la categoría closed, la creamos
+
         if not closed_category:
             closed_category = await interaction.guild.create_category(closed_category_name)
-            # Configurar permisos para la nueva categoría
             await closed_category.set_permissions(
                 interaction.guild.default_role,
                 view_channel=False,
@@ -258,39 +245,35 @@ class ConfirmClose(discord.ui.View):
                 send_messages=True
             )
         
-        # 4. Configurar permisos del canal
         overwrites = {
             interaction.guild.default_role: discord.PermissionOverwrite(
-                view_channel=False  # Los nuevos miembros no ven el ticket
+                view_channel=False  
             ),
             modrole: discord.PermissionOverwrite(
                 view_channel=True,
-                send_messages=True,  # Mods pueden escribir
+                send_messages=True,  
                 manage_messages=True
             )
         }
-        
-        # 5. Mantener acceso a TODOS los participantes actuales
+
         async for message in interaction.channel.history(limit=200):
             if not message.author.bot and message.author not in overwrites:
                 overwrites[message.author] = discord.PermissionOverwrite(
-                    view_channel=True,    # Pueden VER
-                    send_messages=False,  # NO pueden ESCRIBIR
+                    view_channel=True,    
+                    send_messages=False,  
                     read_message_history=True
                 )
-        
-        # 6. Aplicar cambios (incluyendo mover a la categoría closed)
+
         await interaction.channel.edit(
             name=f"🎫┇closed-{interaction.channel.name.split('┇')[-1]}",
-            category=closed_category,  # Esta línea mueve el canal a la categoría closed
+            category=closed_category,  
             overwrites=overwrites,
             reason=f"Cierre de ticket por {interaction.user}"
         )
-        
-        # 7. Mensaje de confirmación
+
         embed = discord.Embed(
             title="🔒 Ticket Cerrado",
-            description="Este ticket ha sido cerrado.\nSi se desea **Re-Abrir** este ticket, haga click en el botón pertinente de *Re-Abrir*\nEn caso negativo, porfavor, elimine el ticket.",
+            description="Este ticket ha sido cerrado.\nSi se desea *Re-Abrir* este ticket, haga click en el botón pertinente de **Re-Abrir**\nEn caso negativo, porfavor, elimine el ticket.",
             color=discord.Color.red()
         )
         await interaction.channel.send(embed=embed, view=PostCloseActions(self.bot))
@@ -313,7 +296,6 @@ class PostCloseActions(discord.ui.View):
         self.bot = bot
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        """Verifica que el usuario tenga el rol de moderador."""
         config = TicketConfig().get_guild_config(interaction.guild.id)
         modrole = interaction.guild.get_role(config.get("modrol"))
         
@@ -332,7 +314,7 @@ class PostCloseActions(discord.ui.View):
         emoji="🗑️"
     )
     async def delete_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()  # Diferir la respuesta inicial
+        await interaction.response.defer()  
 
         config = TicketConfig().get_guild_config(interaction.guild.id)
         TRANSCRIPT_CHA = config.get("transcript_id")
@@ -344,7 +326,7 @@ class PostCloseActions(discord.ui.View):
             )
             return False
 
-        # Crear y enviar embed de espera
+
         waiting = discord.Embed(
             title='Generando transcript...',
             description=f'El transcript está siendo generado para\nel canal <#{TRANSCRIPT_CHA}>, por favor espere',
@@ -353,17 +335,13 @@ class PostCloseActions(discord.ui.View):
         file = discord.File("./cogs/banner/standard.gif", filename="standard.gif")
         waiting.set_image(url="attachment://standard.gif")
         await interaction.delete_original_response()
-        # Enviar el embed y guardar el mensaje para poder borrarlo después
         waiting_message = await interaction.channel.send(embed=waiting, file=file)
 
         try:
-            # Generar el transcript
             transcript_success = await self._generate_transcript(interaction)
-            
-            # Borrar el mensaje de espera
+
             await waiting_message.delete()
-            
-            # Aquí podrías añadir más lógica según el resultado de transcript_success
+
             if not transcript_success:
                 await interaction.followup.send(
                     "❌ Error al generar el transcript",
@@ -377,28 +355,24 @@ class PostCloseActions(discord.ui.View):
                 ephemeral=True
             )
             return False
-        
-        # 3. Enviar nuevo embed de cuenta regresiva
+
         countdown = discord.Embed(
             title="⏳ Eliminando ticket...",
             description="El ticket se eliminará en 5 segundos",
             color=discord.Color.red()
         )
         countdown_msg = await interaction.channel.send(embed=countdown)
-        
-        # 4. Espera dramática
+
         for i in range(5, 0, -1):
             countdown.description = f"El ticket se eliminará en {i} segundos..."
             await countdown_msg.edit(embed=countdown)
             await asyncio.sleep(1)
-        
-        # 5. Eliminar el canal
+
         await interaction.channel.delete(
             reason=f"Ticket eliminado por {interaction.user}"
         )
 
     async def _generate_transcript(self, interaction: discord.Interaction) -> bool:
-        """Función interna para generar el transcript. Devuelve True si fue exitoso."""
         config = TicketConfig().get_guild_config(interaction.guild.id)
         TRANSCRIPT_CHANNEL_ID = config.get("transcript_id")
         
@@ -415,29 +389,23 @@ class PostCloseActions(discord.ui.View):
         filepath = os.path.join(SAVE_FOLDER, filename)
         
         try:
-            # Obtener canal de transcripts
             transcript_channel = self.bot.get_channel(int(TRANSCRIPT_CHANNEL_ID))
             if not transcript_channel:
                 print(f"[ERROR] Canal de transcripts no encontrado: {TRANSCRIPT_CHANNEL_ID}")
                 return False
 
-            # Obtener el creador REAL del ticket (usuario mencionado en el primer mensaje del bot)
             creator = None
             async for message in interaction.channel.history(limit=10, oldest_first=True):
                 if message.author == self.bot.user and message.mentions:
-                    creator = message.mentions[0]  # El usuario mencionado en el primer mensaje del bot
+                    creator = message.mentions[0]  
                     break
-            
-            # Si no encontramos al creador, usamos el usuario que está cerrando el ticket como fallback
+
             if not creator:
                 creator = interaction.user
 
-            # Obtener tiempos exactos
-            creation_time = interaction.channel.created_at
             current_time = datetime.now()
             time_format = '%Y-%m-%d %H:%M:%S'
-            
-            # Procesar mensajes y participantes
+
             participants = set()
             category_name = interaction.channel.category.name.replace("Closed-", "")
             channel_name = interaction.channel.name.replace("🎫┇", "")
@@ -450,7 +418,6 @@ class PostCloseActions(discord.ui.View):
                 "="*50 + "\n\n"
             ]
 
-            # Procesar historial de mensajes
             async for message in interaction.channel.history(limit=None, oldest_first=True):
                 participants.add(message.author)
                 
@@ -478,11 +445,9 @@ class PostCloseActions(discord.ui.View):
                 transcript_content.extend(entry)
                 transcript_content.append("-"*50 + "\n")
 
-            # Guardar archivo local
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.writelines(transcript_content)
 
-            # Crear embed visual
             category_name = interaction.channel.category.name.replace("Closed-", "")
             channel_name = interaction.channel.name.replace("🎫┇", "")
             transcript_embed = discord.Embed(
@@ -491,11 +456,9 @@ class PostCloseActions(discord.ui.View):
                 color=discord.Color.from_rgb(39, 118, 223),
                 timestamp=current_time
             )
-            
-            # Configurar ambas imágenes (thumbnail y banner)
+
             files = []
             try:
-                # Thumbnail (logo pequeño)
                 logo_file = discord.File("./cogs/banner/logo.png", filename="logo.png")
                 transcript_embed.set_thumbnail(url="attachment://logo.png")
                 transcript_embed.set_footer(
@@ -503,15 +466,12 @@ class PostCloseActions(discord.ui.View):
                     icon_url="attachment://logo.png"
                 )
                 files.append(logo_file)
-                
-                # Banner grande
                 banner_file = discord.File("./cogs/banner/standard.gif", filename="standard.gif")
                 transcript_embed.set_image(url="attachment://standard.gif")
                 files.append(banner_file)
             except Exception as e:
                 print(f"[WARNING] No se pudieron cargar imágenes: {e}")
 
-            # Añadir campos al embed
             transcript_embed.add_field(
                 name="👤 Creador del Ticket",
                 value=f"{creator.mention}\nID: {creator.id}",
@@ -525,13 +485,11 @@ class PostCloseActions(discord.ui.View):
                 inline=False
             )
 
-            # Enviar primero el embed con las imágenes
             await transcript_channel.send(
                 embed=transcript_embed,
                 files=files
             )
-            
-            # Luego enviar el archivo TXT por separado
+
             await transcript_channel.send(
                 file=discord.File(filepath)
             )
@@ -554,16 +512,37 @@ class PostCloseActions(discord.ui.View):
     )
     async def reopen_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        
-        # 1. Verificar estado
+
         if not interaction.channel.name.startswith("🎫┇closed-"):
             return await interaction.followup.send("⚠️ Ya está abierto", ephemeral=True, delete_after=5)
-        
-        # 2. Obtener configuración
+
         config = TicketConfig().get_guild_config(interaction.guild.id)
         modrole = interaction.guild.get_role(config.get("modrol"))
+
+        creator = None
+        async for message in interaction.channel.history(limit=10, oldest_first=True):
+            if message.author == self.bot.user and message.mentions:
+                creator = message.mentions[0] 
+                break
+
+        closed_category = interaction.channel.category
+        original_category_name = closed_category.name.replace("Closed-", "")
+        original_category = utils.get(interaction.guild.categories, name=original_category_name)
         
-        # 3. Configurar permisos de reapertura
+        if not original_category:
+            original_category = await interaction.guild.create_category(original_category_name)
+            await original_category.set_permissions(
+                interaction.guild.default_role,
+                view_channel=False,
+                send_messages=False
+            )
+            await original_category.set_permissions(
+                modrole,
+                view_channel=True,
+                manage_channels=True,
+                send_messages=True
+            )
+
         overwrites = {
             interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
             modrole: discord.PermissionOverwrite(
@@ -572,26 +551,35 @@ class PostCloseActions(discord.ui.View):
                 manage_messages=True
             )
         }
-        
-        # 4. Restaurar escritura a participantes
         async for message in interaction.channel.history(limit=200):
             if not message.author.bot and message.author not in overwrites:
                 overwrites[message.author] = discord.PermissionOverwrite(
                     view_channel=True,
-                    send_messages=True,  # Ahora SÍ pueden escribir
+                    send_messages=True, 
                     read_message_history=True
                 )
-        
-        # 5. Aplicar cambios
+
         await interaction.channel.edit(
             name=f"🎫┇{interaction.channel.name.split('closed-')[-1]}",
+            category=original_category, 
             overwrites=overwrites,
             reason=f"Reapertura por {interaction.user}"
         )
-        
-        # 6. Confirmación efímera
-        await interaction.followup.send("✅ Ticket reabierto correctamente", ephemeral=True)
-        await interaction.channel.send(f"🔓 {interaction.user.mention} ha reabierto este ticket")
+
+        await interaction.delete_original_response()
+
+        if creator:
+            temp_ping = await interaction.channel.send(f"{creator.mention}")
+            await temp_ping.delete() 
+
+        confirmed = discord.Embed(
+            title='🔓 TICKET REABIERTO',
+            description=f'El ticket ha sido reabierto por {interaction.user.mention}\n\nAhora puedes continuar con tu consulta.',
+            color=discord.Color.green()
+        )
+        confirmed_m = await interaction.channel.send(embed=confirmed)
+        await asyncio.sleep(3)
+        await confirmed_m.delete()
 
 # =============================================
 # COG PRINCIPAL
@@ -604,7 +592,6 @@ class TicketSystem(commands.Cog):
 
     async def setup_hook(self):
         if not self.persistent_views_added:
-            # Registrar todas las vistas persistentes
             self.bot.add_view(HelpView())
             self.bot.add_view(TicketView(self.bot))
             self.bot.add_view(ConfirmClose(self.bot))
@@ -614,7 +601,6 @@ class TicketSystem(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        # Volver a registrar vistas por si acaso
         self.bot.add_view(HelpView())
         self.bot.add_view(TicketView(self.bot))
         self.bot.add_view(ConfirmClose(self.bot))
@@ -649,7 +635,6 @@ class TicketSystem(commands.Cog):
             transcript_id=transcript_channel.id
         )
         try:
-            # Verificar configuración
             config = self.config.get_guild_config(interaction.guild.id)
             if not config.get("modrol") or not config.get("transcript_id"):
                 return await interaction.response.send_message(
@@ -662,19 +647,16 @@ class TicketSystem(commands.Cog):
                 description="El panel de tickets se está creando......",
                 color=discord.Color.from_rgb(39, 118, 223)
             )
-            
-            # Attach the local image file
+
             file = discord.File("./cogs/banner/standard.gif", filename="standard.gif")
             embed.set_image(url="attachment://standard.gif")
             
             await interaction.response.send_message(embed=embed, file=file, ephemeral=True)
 
-            # Wait for 1 second, then delete the original response
             await asyncio.sleep(1)
             await interaction.delete_original_response()
             await asyncio.sleep(0.5)
 
-            # Send the final ticket panel
             embed2 = discord.Embed(
                 title="Apertura de Ticket",
                 description="Para abrir un ticket, selecciona una de las opciones:\n🔨Soporte: Explica cual es tu problema/bugg\n❓Dudas: Explica cuales son tus dudas para poder resolverlas\n💵Aportaciones: Puedes realizar una donación para\nmejorar y mantener activo el servicio",

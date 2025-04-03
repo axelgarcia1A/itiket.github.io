@@ -33,6 +33,7 @@ async def on_guild_join(guild):
                   str(guild.id): {
                       "auto_role_u": None,
                       "auto_role_b": None,
+                      "buyer": None,
                   }
              }
         )
