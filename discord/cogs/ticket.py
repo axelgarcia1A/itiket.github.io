@@ -389,7 +389,6 @@ class PostCloseActions(discord.ui.View):
         filepath = os.path.join(SAVE_FOLDER, filename)
         
         try:
-            # Configuración de zona horaria para España
             spain_tz = pytz.timezone('Europe/Madrid')
             time_format = '%d/%m/%Y %H:%M:%S'
 
@@ -411,7 +410,6 @@ class PostCloseActions(discord.ui.View):
             participants = set()
             channel_name = interaction.channel.name.replace("🎫┇closed-", "")
             
-            # HTML Header con estilo Discord
             html_content = f"""<!DOCTYPE html>
             <html lang="es">
             <head>
@@ -670,11 +668,9 @@ class PostCloseActions(discord.ui.View):
                         <p><strong>Generado el:</strong> {current_time.strftime(time_format)} (hora española)</p>
                     </div>"""
 
-            # Procesar mensajes
             async for message in interaction.channel.history(limit=None, oldest_first=True):
                 participants.add(message.author)
                 
-                # Convertir tiempos a zona horaria de España
                 msg_time = message.created_at.astimezone(spain_tz)
                 edited_time = message.edited_at.astimezone(spain_tz) if message.edited_at else None
                 
