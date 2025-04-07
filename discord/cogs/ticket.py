@@ -1,4 +1,4 @@
-import discord
+import discord, pytz
 from discord.ext import commands
 from discord import app_commands, utils
 import asyncio
@@ -385,10 +385,14 @@ class PostCloseActions(discord.ui.View):
             
         SAVE_FOLDER = "transcripts"
         os.makedirs(SAVE_FOLDER, exist_ok=True)
-        filename = f"transcript_{interaction.channel.id}.txt"
+        filename = f"transcript_{interaction.channel.id}.html"
         filepath = os.path.join(SAVE_FOLDER, filename)
         
         try:
+            # Configuración de zona horaria para España
+            spain_tz = pytz.timezone('Europe/Madrid')
+            time_format = '%d/%m/%Y %H:%M:%S'
+
             transcript_channel = self.bot.get_channel(int(TRANSCRIPT_CHANNEL_ID))
             if not transcript_channel:
                 print(f"[ERROR] Canal de transcripts no encontrado: {TRANSCRIPT_CHANNEL_ID}")
@@ -403,53 +407,382 @@ class PostCloseActions(discord.ui.View):
             if not creator:
                 creator = interaction.user
 
-            current_time = datetime.now()
-            time_format = '%Y-%m-%d %H:%M:%S'
-
+            current_time = datetime.now().astimezone(spain_tz)
             participants = set()
-            category_name = interaction.channel.category.name.replace("Closed-", "")
-            channel_name = interaction.channel.name.replace("🎫┇", "")
-            transcript_content = [
-                f"=== TRANSCRIPT DEL TICKET ===\n",
-                f"• Canal: {channel_name}\n",
-                f"• ID del Canal: {interaction.channel.id}\n",
-                f"• Categoría: {category_name}\n"  # <-- Nombre limpio
-                f"• Creado por: {creator.display_name} (ID: {creator.id})\n",
-                "="*50 + "\n\n"
-            ]
+            channel_name = interaction.channel.name.replace("🎫┇closed-", "")
+            
+            # HTML Header con estilo Discord
+            html_content = f"""<!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Transcript de {channel_name}</title>
+                <link rel="icon" href="https://i.ibb.co/Xxy6kXfw/itiket-transparente.png"/>
+                <style>
+                    :root {{
+                        --background-primary: #36393f;
+                        --background-secondary: #2f3136;
+                        --background-tertiary: #202225;
+                        --channel-text-area: #40444b;
+                        --text-normal: #dcddde;
+                        --text-muted: #72767d;
+                        --brand-color: #5865f2;
+                        --mention-background: rgba(250, 166, 26, 0.1);
+                    }}
+                    
+                    body {{
+                        font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                        background-color: var(--background-primary);
+                        color: var(--text-normal);
+                        margin: 0;
+                        padding: 0;
+                        line-height: 1.5;
+                    }}
+                    
+                    .discord-container {{
+                        max-width: 90%;
+                        margin: 0 auto;
+                        background-color: var(--background-secondary);
+                        min-height: 100vh;
+                        padding: 20px;
+                    }}
+                    
+                    .header {{
+                        background-color: var(--background-tertiary);
+                        color: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                        text-align: left;
+                    }}
+                    
+                    .message {{
+                        display: flex;
+                        padding: 8px 16px;
+                        position: relative;
+                    }}
+                    
+                    .message:hover {{
+                        background-color: rgba(79, 84, 92, 0.16);
+                    }}
+                    
+                    .avatar {{
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        margin-right: 16px;
+                        flex-shrink: 0;
+                    }}
+                    
+                    .message-content {{
+                        flex-grow: 1;
+                        min-width: 0;
+                    }}
+                    
+                    .message-header {{
+                        display: flex;
+                        align-items: baseline;
+                        margin-bottom: 4px;
+                    }}
+                    
+                    .author {{
+                        font-weight: 500;
+                        color: white;
+                        margin-right: 8px;
+                    }}
+                    
+                    .timestamp {{
+                        color: var(--text-muted);
+                        font-size: 0.75rem;
+                        font-weight: 400;
+                    }}
+                    
+                    .message-body {{
+                        word-wrap: break-word;
+                    }}
+                    
+                    .edited {{
+                        color: var(--text-muted);
+                        font-size: 0.75rem;
+                        margin-left: 4px;
+                    }}
+                    
+                    .attachments {{
+                        margin-top: 8px;
+                    }}
+                    
+                    .attachment-image {{
+                        max-width: 400px;
+                        max-height: 300px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }}
+                    
+                    .attachment-file {{
+                        display: inline-block;
+                        background-color: var(--background-tertiary);
+                        padding: 10px;
+                        border-radius: 4px;
+                        color: #00aff4;
+                        text-decoration: none;
+                    }}
+                    
+                    .embed {{
+                        margin-top: 8px;
+                        max-width: 520px;
+                        border-left: 4px solid #2776df; 
+                        border-radius: 4px;
+                        display: flex;
+                        background-color: var(--background-tertiary);
+                        padding: 8px 16px 8px 12px;
+                    }}
+                    
+                    .embed-content {{
+                        flex-grow: 1;
+                        min-width: 0;
+                    }}
+                    
+                    .embed-title {{
+                        font-weight: 600;
+                        margin-bottom: 8px;
+                    }}
+                    
+                    .embed-description {{
+                        margin-bottom: 8px;
+                    }}
+                    
+                    .embed-fields {{
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                        margin-bottom: 8px;
+                    }}
+                    
+                    .embed-field {{
+                        flex: 1;
+                        min-width: 150px;
+                    }}
+                    
+                    .embed-field-name {{
+                        font-weight: 600;
+                        margin-bottom: 4px;
+                    }}
+                    
+                    .embed-image-container {{
+                        margin-top: 8px;
+                    }}
+                    
+                    .embed-image-main {{
+                        max-width: 100%;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }}
+                    
+                    .embed-thumbnail {{
+                        margin-left: 16px;
+                        width: 80px;
+                        height: 80px;
+                        border-radius: 4px;
+                        flex-shrink: 0;
+                    }}
+                    
+                    .embed-footer {{
+                        margin-top: 8px;
+                        font-size: 0.75rem;
+                        color: var(--text-muted);
+                        display: flex;
+                        align-items: center;
+                    }}
+                    
+                    .embed-footer-icon {{
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        margin-right: 8px;
+                    }}
+                    
+                    .mention {{
+                        background-color: var(--mention-background);
+                        color: var(--brand-color);
+                        padding: 0 2px;
+                        border-radius: 3px;
+                    }}
+                    
+                    .footer {{
+                        margin-top: 30px;
+                        padding: 20px;
+                        background-color: var(--background-tertiary);
+                        border-radius: 8px;
+                        text-align: left;
+                    }}
+                    
+                    .participants-list {{
+                        display: flex;
+                        flex-direction: column;
+                        flex-wrap: wrap;
+                        justify-content: left;
+                        gap: 10px;
+                        margin-top: 10px;
+                    }}
+                    
+                    .participant {{
+                        display: flex;
+                        align-items: center;
+                        background-color: var(--background-secondary);
+                        padding: 5px 10px;
+                        border-radius: 4px;
+                        max-width: fit-content;
+                        box-sizing: border-box;
+                    }}
+                    
+                    .participant-avatar {{
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        margin-right: 5px;
+                    }}
+                    .logo{{
+                        padding-top: 5%;
+                        width: 40%;
+                    }}
+                    .logo_div{{
+                        float: right;
+                        max-width: 20%;
+                        justify-content: right;
+                        align-items: right;
+                        text-align: right;
+                    }}
+                    p{{
+                        margin: 1px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="discord-container">
+                    <div class="header">
+                        <div class="logo_div">
+                            <img src="https://i.ibb.co/Xxy6kXfw/itiket-transparente.png" alt="itiket-transparente" border="0" class="logo"/>
+                        </div>
+                        <h1>Transcript del Ticket</h1>
+                        <p><strong>Canal:</strong> {channel_name}</p>
+                        <p><strong>Creado por:</strong> {creator.display_name} (ID: {creator.id})</p>
+                        <p><strong>Generado el:</strong> {current_time.strftime(time_format)} (hora española)</p>
+                    </div>"""
 
+            # Procesar mensajes
             async for message in interaction.channel.history(limit=None, oldest_first=True):
                 participants.add(message.author)
                 
-                entry = [
-                    f"[{message.created_at.strftime(time_format)}] ",
-                    f"{message.author.display_name} ({message.author.id}):\n",
-                    f"{message.content}\n" if message.content else ""
-                ]
+                # Convertir tiempos a zona horaria de España
+                msg_time = message.created_at.astimezone(spain_tz)
+                edited_time = message.edited_at.astimezone(spain_tz) if message.edited_at else None
                 
-                if message.edited_at:
-                    entry.append(f"(Editado: {message.edited_at.strftime(time_format)})\n")
-                
-                if message.attachments:
-                    entry.append("Archivos adjuntos:\n")
-                    entry.extend(f"- {a.filename}: {a.url}\n" for a in message.attachments)
-                
-                if message.embeds:
-                    entry.append("Contenido embebido:\n")
-                    for embed in message.embeds:
-                        if embed.title: entry.append(f"Título: {embed.title}\n")
-                        if embed.description: entry.append(f"Descripción: {embed.description}\n")
-                        for field in embed.fields:
-                            entry.append(f"{field.name}: {field.value}\n")
-                
-                transcript_content.extend(entry)
-                transcript_content.append("-"*50 + "\n")
+                html_content += f"""
+                <div class="message">
+                    <img class="avatar" src="{message.author.display_avatar.url}" alt="{message.author.display_name}">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="author">{message.author.display_name}</span>
+                            <span class="timestamp">{msg_time.strftime(time_format)}</span>
+                            {f'<span class="edited">(editado)</span>' if edited_time else ''}
+                        </div>
+                        <div class="message-body">"""
 
+                # Contenido del mensaje
+                if message.content:
+                    # Procesar menciones
+                    content = message.content
+                    for mention in message.mentions:
+                        content = content.replace(f'<@{mention.id}>', f'<span class="mention">@{mention.display_name}</span>')
+                        content = content.replace(f'<@!{mention.id}>', f'<span class="mention">@{mention.display_name}</span>')
+                    
+                    html_content += f"<p>{content}</p>"
+                
+                # Adjuntos (imágenes y otros archivos)
+                if message.attachments:
+                    html_content += '<div class="attachments">'
+                    for attachment in message.attachments:
+                        if attachment.url.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+                            html_content += f'<a href="{attachment.url}" target="_blank"><img class="attachment-image" src="{attachment.url}" alt="{attachment.filename}"></a>'
+                        else:
+                            html_content += f'<a href="{attachment.url}" target="_blank" class="attachment-file">{attachment.filename}</a>'
+                    html_content += '</div>'
+                
+                # Embeds
+                if message.embeds:
+                    for embed in message.embeds:
+                        html_content += '<div class="embed">'
+                        
+                        # Contenido principal del embed
+                        html_content += '<div class="embed-content">'
+                        
+                        # Color del borde izquierdo
+                        border_color = f"hsl({embed.color}, 100%, 50%)" if embed.color else "var(--brand-color)"
+                        html_content = html_content.replace('border-left: 4px solid;', f'border-left: 4px solid {border_color};')
+                        
+                        # Título
+                        if embed.title:
+                            html_content += f'<div class="embed-title">{embed.title}</div>'
+                        
+                        # Descripción
+                        if embed.description:
+                            html_content += f'<div class="embed-description">{embed.description}</div>'
+                        
+                        # Campos
+                        if embed.fields:
+                            html_content += '<div class="embed-fields">'
+                            for field in embed.fields:
+                                html_content += f'<div class="embed-field"><div class="embed-field-name">{field.name}</div>{field.value}</div>'
+                            html_content += '</div>'
+                        
+                        # Footer
+                        if embed.footer:
+                            html_content += '<div class="embed-footer">'
+                            if embed.footer.icon_url:
+                                html_content += f'<img class="embed-footer-icon" src="{embed.footer.icon_url}" alt="Footer icon">'
+                            html_content += f'<span>{embed.footer.text}</span>'
+                            html_content += '</div>'
+                        
+                        html_content += '</div>'  # Cierre embed-content
+                        
+                        html_content += '</div>'  # Cierre embed
+                
+                html_content += "</div></div></div>"  # Cierres de message-body, message-content y message
+
+            # Footer con participantes
+            html_content += """
+
+            <div class="footer">
+                <div class="logo_div">
+                    <img src="https://i.ibb.co/Xxy6kXfw/itiket-transparente.png" alt="itiket-transparente" border="0" class="logo"/>
+                </div>
+                <h2>Participantes</h2>
+                <div class="participants-list">"""
+            
+            for participant in sorted(participants, key=lambda x: x.display_name):
+                if participant == creator:
+                    continue
+                html_content += f"""
+                    <div class="participant">
+                        <img class="participant-avatar" src="{participant.display_avatar.url}" alt="{participant.display_name}">
+                        <span>{participant.display_name} (ID: {participant.id})</span>
+                    </div>"""
+            
+            html_content += """
+                </div>
+                <p style="margin-top: 20px;">Transcript generado automáticamente</p>
+            </div>
+            </div>
+            </body>
+            </html>"""
+
+            # Guardar archivo HTML
             with open(filepath, 'w', encoding='utf-8') as f:
-                f.writelines(transcript_content)
+                f.write(html_content)
 
             category_name = interaction.channel.category.name.replace("Closed-", "")
-            channel_name = interaction.channel.name.replace("🎫┇", "")
+            channel_name = interaction.channel.name.replace("🎫┇closed-", "")
             transcript_embed = discord.Embed(
                 title=f"📝 Transcript de {category_name}",  # Usamos el nombre limpio
                 description=f'{channel_name}',
@@ -491,13 +824,14 @@ class PostCloseActions(discord.ui.View):
             )
 
             await transcript_channel.send(
-                file=discord.File(filepath)
+                file=discord.File(filepath),
             )
             
             return True
             
         except Exception as e:
-            print(f"[ERROR-TRANSCRIPT] {datetime.now().strftime(time_format)} - Error:", e)
+            error_time = datetime.now().astimezone(spain_tz).strftime(time_format)
+            print(f"[ERROR-TRANSCRIPT] {error_time} - Error:", e)
             await interaction.followup.send(
                 "❌ Error al generar el transcript. Contacta con un administrador.",
                 ephemeral=True

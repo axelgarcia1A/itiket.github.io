@@ -58,7 +58,7 @@ class Commands(commands.Cog):
         embed = discord.Embed(title='Información', color=discord.Color.from_rgb(39, 118, 223))
         embed.add_field(name='<:itiket:1352670742772318290> Web', value='Comprueba nuestra web clicando [aquí](https://www.itcket.cat)', inline=False)
         embed.add_field(name='<:discord:1352670613587755159> Discord', value='Para unirte a nuestro servidor de discord, haz click [aquí](https://discord.gg/mAFjh7cf5t)', inline=False)
-        embed.add_field(name='<:telegram:1352670399485181972> Telegram', value='Para conectactar con nuestro bot de telegram, busca en la app "iTiket Telegram"', inline=False)
+        embed.add_field(name='<:telegram:1352670399485181972> Telegram', value='Para conectactar con nuestro bot de telegram, busca en la app "iTicket Telegram"', inline=False)
         file = discord.File("./cogs/banner/standard.gif", filename="standard.gif")
         embed.set_image(url="attachment://standard.gif")
         await interaction.followup.send(embed=embed, file=file)
