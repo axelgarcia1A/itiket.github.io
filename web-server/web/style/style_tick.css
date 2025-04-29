@@ -1,0 +1,113 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    transition: background var(--transition), color var(--transition);
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    padding: 0;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+}
+
+/* Estilos para la sección de ticket */
+.ticket-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+}
+
+.ticket-container h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+    font-family: 'Coolvetica', Arial, sans-serif;
+}
+
+.ticket-container p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    color: var(--text-color);
+}
+
+.ticket-button-container {
+    margin: 2rem 0;
+}
+
+.ticket-button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ticket-button:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-button svg {
+    transition: transform var(--transition);
+}
+
+.ticket-button:hover svg {
+    transform: translateX(3px);
+}
+
+.ticket-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+}
+
+.info-box {
+    background: rgba(0, 121, 216, 0.1);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    transition: transform var(--transition);
+}
+
+.info-box:hover {
+    transform: translateY(-5px);
+}
+
+.info-box h3 {
+    margin-top: 0;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-box p {
+    margin-bottom: 0;
+    color: var(--text-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ticket-container {
+        padding: 1rem;
+    }
+    
+    .ticket-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+.boton{
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    transition: color var(--transition);
+}
