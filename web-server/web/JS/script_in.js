@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applyTheme(savedTheme);
     } else if (systemPrefersDark) {
         applyTheme('dark');
+        
     } else {
         applyTheme('light');
     }
