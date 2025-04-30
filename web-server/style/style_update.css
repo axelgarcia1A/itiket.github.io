@@ -1,0 +1,200 @@
+/* Estilos específicos para la página de actualizaciones */
+.updates-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.updates-container h1 {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-family: 'Coolvetica', Arial, sans-serif;
+}
+
+.updates-container .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 8rem; /* Aumentamos el padding izquierdo */
+    margin: 3rem 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 6rem; /* Movemos la línea azul más a la derecha */
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+.update-card {
+    position: relative;
+    margin-bottom: 3rem;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    padding: 1.5rem;
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.update-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.update-date {
+    position: absolute;
+    left: -8rem; /* Ajustamos posición de las fechas */
+    top: 0.5rem;
+    width: 6rem; /* Más espacio para las fechas */
+    text-align: right;
+    font-weight: bold;
+    color: var(--primary);
+    padding-right: 1rem; /* Espacio entre fecha y línea */
+    box-sizing: border-box;
+}
+
+.update-content h3 {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 1.3rem;
+}
+
+.update-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 0.8rem;
+}
+
+.update-badge.new-feature {
+    background-color: rgba(0, 121, 216, 0.2);
+    color: var(--primary);
+}
+
+.update-badge.improvement {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.update-badge.fix {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #F44336;
+}
+
+.update-features {
+    list-style: none;
+    padding-left: 1.2rem;
+}
+
+.update-features li {
+    position: relative;
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+}
+
+.update-features li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.newsletter-section {
+    margin-top: 4rem;
+    padding: 2rem;
+    background: rgba(0, 121, 216, 0.05);
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.newsletter-section h2 {
+    color: var(--primary);
+    margin-top: 0;
+}
+
+.newsletter-form {
+    display: flex;
+    max-width: 500px;
+    margin: 1.5rem auto 0;
+}
+
+.newsletter-form input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    font-size: 1rem;
+}
+
+.newsletter-form button {
+    padding: 0.8rem 1.5rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.newsletter-form button:hover {
+    background: var(--primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .timeline {
+        padding-left: 0;
+    }
+    
+    .timeline::before {
+        display: none;
+    }
+    
+    .update-date {
+        position: static;
+        width: auto;
+        text-align: left;
+        margin-bottom: 0.5rem;
+        padding-right: 0;
+        left: auto;
+        color: var(--text-color);
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    .update-card {
+        margin-bottom: 2rem;
+        padding: 1.2rem;
+    }
+}
+
+/* Ajustes adicionales para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .update-date {
+        font-size: 0.85rem;
+    }
+    
+    .update-content h3 {
+        font-size: 1.1rem;
+    }
+    
+    .update-features li {
+        font-size: 0.9rem;
+    }
+}
+
+/* Mantén aquí todos tus estilos existentes para header, footer, torch toggle, etc. */
