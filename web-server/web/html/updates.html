@@ -4,7 +4,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <title>iTiket</title>
         <link rel="stylesheet" type="text/css" href="./../style/style_bg.css"/>
-        <link rel="stylesheet" type="text/css" href="./../style/style_tick.css"/>
+        <link rel="stylesheet" type="text/css" href="./../style/style_update.css"/>
         <link rel="icon" type="image/png" href="./../image/itiket_logo.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
@@ -121,13 +121,82 @@
           </div>
         </header>
         <main>
-          <side>
-            <div class="sidebar">
-              <h1>
-                NEWSLETTER
-              </h1>
-            </div>
-          </side>
+          <section class="updates-container">
+              <h1>Últimas Actualizaciones</h1>
+              <p class="subtitle">Mantente informado sobre las mejoras en nuestro sistema de ticketing</p>
+              
+              <div class="timeline">
+                  <!-- Actualización 1 -->
+                  <div class="update-card">
+                      <div class="update-date">15 Junio 2023</div>
+                      <div class="update-content">
+                          <h3>Versión 2.5.0 - Integración con Slack</h3>
+                          <div class="update-badge new-feature">Nueva Funcionalidad</div>
+                          <p>Hemos implementado la integración directa con Slack para que puedas recibir notificaciones de tickets en tus canales preferidos.</p>
+                          <ul class="update-features">
+                              <li>Notificaciones en tiempo real</li>
+                              <li>Respuesta a tickets desde Slack</li>
+                              <li>Soporte para múltiples canales</li>
+                          </ul>
+                      </div>
+                  </div>
+                  
+                  <!-- Actualización 2 -->
+                  <div class="update-card">
+                      <div class="update-date">30 Mayo 2023</div>
+                      <div class="update-content">
+                          <h3>Versión 2.4.3 - Mejoras de Rendimiento</h3>
+                          <div class="update-badge improvement">Mejora</div>
+                          <p>Optimizaciones significativas en el backend para manejar grandes volúmenes de tickets.</p>
+                          <ul class="update-features">
+                              <li>Reducción del 40% en tiempos de respuesta</li>
+                              <li>Mejor manejo de archivos adjuntos</li>
+                              <li>Sistema de caché inteligente</li>
+                          </ul>
+                      </div>
+                  </div>
+                  
+                  <!-- Actualización 3 -->
+                  <div class="update-card">
+                      <div class="update-date">12 Mayo 2023</div>
+                      <div class="update-content">
+                          <h3>Versión 2.4.0 - Panel de Estadísticas</h3>
+                          <div class="update-badge new-feature">Nueva Funcionalidad</div>
+                          <p>Nuevo panel de estadísticas para seguimiento de métricas clave de soporte.</p>
+                          <ul class="update-features">
+                              <li>Tiempos promedio de respuesta</li>
+                              <li>Satisfacción del cliente</li>
+                              <li>Volúmenes por categoría</li>
+                              <li>Exportación a Excel/PDF</li>
+                          </ul>
+                      </div>
+                  </div>
+                  
+                  <!-- Actualización 4 -->
+                  <div class="update-card">
+                      <div class="update-date">25 Abril 2023</div>
+                      <div class="update-content">
+                          <h3>Versión 2.3.2 - Corrección de Errores</h3>
+                          <div class="update-badge fix">Corrección</div>
+                          <p>Resueltos varios problemas reportados por nuestros usuarios.</p>
+                          <ul class="update-features">
+                              <li>Problema con notificaciones por email</li>
+                              <li>Error al asignar tickets recurrentes</li>
+                              <li>Mejoras en la interfaz móvil</li>
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="newsletter-section">
+                  <h2>¿Quieres recibir nuestras actualizaciones?</h2>
+                  <p>Suscríbete a nuestro boletín para estar al día con todas las novedades.</p>
+                  <form class="newsletter-form">
+                      <input type="email" placeholder="Tu correo electrónico" required>
+                      <button type="submit">Suscribirse</button>
+                  </form>
+              </div>
+          </section>
         </main>
         <footer>
           <div class="footer-container">
@@ -192,4 +261,5 @@
           </div>
         </footer>
         <script src="./../JS/script_bg.js"></script>
+        <script src="./../JS/script_update.js"></script>
     </body>

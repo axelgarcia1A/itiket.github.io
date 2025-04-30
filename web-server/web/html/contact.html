@@ -4,7 +4,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <title>iTiket</title>
         <link rel="stylesheet" type="text/css" href="./../style/style_bg.css"/>
-        <link rel="stylesheet" type="text/css" href="./../style/style_services.css"/>
+        <link rel="stylesheet" type="text/css" href="./../style/style_contact.css"/>
         <link rel="icon" type="image/png" href="./../image/itiket_logo.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
@@ -121,115 +121,109 @@
           </div>
         </header>
         <main>
-          <section class="services-hero">
-              <div class="hero-content">
-                  <h1>Soluciones de Ticketing a Medida</h1>
-                  <p class="hero-subtitle">Optimiza tu atención al cliente con nuestros servicios especializados</p>
-                  <a href="#our-services" class="hero-cta">Explora nuestros servicios</a>
-              </div>
-              <div class="hero-image">
-                  <img src="./../image/services1.jpeg" alt="Sistema de Ticketing iTiket">
-              </div>
-          </section>
-          
-          <section id="our-services" class="services-container">
-              <h2>Nuestros Servicios</h2>
-              <p class="services-subtitle">Descubre cómo podemos ayudarte a transformar tu gestión de tickets</p>
-              
-              <div class="services-grid">
-                  <!-- Servicio 1 -->
-                  <div class="service-card">
-                      <div class="service-icon">
-                          <img src="./../image/services2.jpeg" alt="Implementación">
-                      </div>
-                      <h3>Implementación Personalizada</h3>
-                      <p>Configuración adaptada a tus flujos de trabajo y procesos internos para una integración perfecta.</p>
-                      <ul class="service-features">
-                          <li>Análisis de necesidades</li>
-                          <li>Configuración inicial</li>
-                          <li>Migración de datos</li>
-                          <li>Entrenamiento del equipo</li>
-                      </ul>
-                      <a href="contact.html" class="service-link">Más información →</a>
-                  </div>
-                  
-                  <!-- Servicio 2 -->
-                  <div class="service-card highlight">
-                      <div class="service-icon">
-                          <img src="./../image/services3.jpeg" alt="Soporte">
-                      </div>
-                      <h3>Soporte Premium</h3>
-                      <p>Asistencia técnica prioritaria y acompañamiento continuo para garantizar el máximo rendimiento.</p>
-                      <ul class="service-features">
-                          <li>Soporte 24/7</li>
-                          <li>Tiempos de respuesta garantizados</li>
-                          <li>Acceso a expertos</li>
-                          <li>Actualizaciones incluidas</li>
-                      </ul>
-                      <a href="contact.html" class="service-link">Más información →</a>
-                  </div>
-                  
-                  <!-- Servicio 3 -->
-                  <div class="service-card">
-                      <div class="service-icon">
-                          <img src="./../image/services4.jpeg" alt="Integraciones">
-                      </div>
-                      <h3>Integraciones Avanzadas</h3>
-                      <p>Conexión con tus herramientas existentes para un ecosistema unificado de atención al cliente.</p>
-                      <ul class="service-features">
-                          <li>CRM (Salesforce, HubSpot)</li>
-                          <li>Plataformas de comunicación</li>
-                          <li>Herramientas de productividad</li>
-                          <li>Sistemas de facturación</li>
-                      </ul>
-                      <a href="contact.html" class="service-link">Más información →</a>
-                  </div>
+            <section class="contact-hero">
+                <div class="hero-content">
+                    <h1>Contacta con nuestro equipo</h1>
+                    <p class="hero-subtitle">Estamos aquí para ayudarte con cualquier pregunta sobre nuestro sistema de ticketing</p>
+                </div>
+            </section>
+            
+            <section class="contact-container">
+                <div class="contact-grid">
+                    <div class="contact-form-container">
+                        <h2>Envíanos un mensaje</h2>
+                        <form class="contact-form" id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Nombre completo</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Correo electrónico</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="company">Empresa (opcional)</label>
+                                <input type="text" id="company" name="company">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="subject">Asunto</label>
+                                <select id="subject" name="subject" required>
+                                    <option value="" disabled selected>Selecciona una opción</option>
+                                    <option value="sales">Consultas comerciales</option>
+                                    <option value="support">Soporte técnico</option>
+                                    <option value="partnership">Partnerships</option>
+                                    <option value="other">Otros</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message">Mensaje</label>
+                                <textarea id="message" name="message" rows="5" required></textarea>
+                            </div>
+                            
+                            <div class="form-footer">
+                                <button type="submit" class="submit-button">Enviar mensaje</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="contact-info-container">
+                        <h2>Otras formas de contacto</h2>
+                        
+                        <div class="contact-method">
+                            <div class="contact-icon">
+                                <img src="./../image/mail.png" alt="Email">
+                            </div>
+                            <div class="contact-details">
+                                <h3>Correo electrónico</h3>
+                                <a href="mailto:contacto@itiket.com">contacto@itiket.com</a>
+                                <p>Respuesta en menos de 24 horas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="contact-icon">
+                                <img src="./../image/movil.png" alt="Teléfono">
+                            </div>
+                            <div class="contact-details">
+                                <h3>Teléfono</h3>
+                                <a href="tel:+34901234567">+34 901 234 567</a>
+                                <p>Lunes a viernes de 9:00 a 18:00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="faq-section">
+                <h2>Preguntas frecuentes</h2>
                 
-                  
-                  <!-- Servicio 5 -->
-                  <div class="service-card">
-                      <div class="service-icon">
-                          <img src="./../image/services5.jpeg" alt="Analítica">
-                      </div>
-                      <h3>Consultoría Analítica</h3>
-                      <p>Optimización continua basada en datos para mejorar tus métricas de atención al cliente.</p>
-                      <ul class="service-features">
-                          <li>Dashboard personalizado</li>
-                          <li>Informes periódicos</li>
-                          <li>Recomendaciones estratégicas</li>
-                          <li>Benchmarking sectorial</li>
-                      </ul>
-                      <a href="contact.html" class="service-link">Más información →</a>
-                  </div>
-                  
-                  <!-- Servicio 6 -->
-                  <div class="service-card">
-                      <div class="service-icon">
-                          <img src="./../image/services6.jpeg" alt="Personalización">
-                      </div>
-                      <h3>Desarrollo a Medida</h3>
-                      <p>Funcionalidades exclusivas diseñadas específicamente para tus necesidades únicas.</p>
-                      <ul class="service-features">
-                          <li>Análisis de requerimientos</li>
-                          <li>Prototipado rápido</li>
-                          <li>Desarrollo ágil</li>
-                          <li>Implementación guiada</li>
-                      </ul>
-                      <a href="contact.html" class="service-link">Más información →</a>
-                  </div>
-              </div>
-          </section>
-          
-          <section class="service-cta">
-              <div class="cta-content">
-                  <h2>¿Necesitas una solución personalizada?</h2>
-                  <p>Nuestro equipo de expertos puede crear un paquete de servicios adaptado exactamente a tus necesidades.</p>
-                  <div class="cta-buttons">
-                      <a href="./contact.html" class="cta-button primary">Contacta con nosotros</a>
-                      <a href="./prices.html" class="cta-button secondary">Ver precios</a>
-                  </div>
-              </div>
-          </section>
+                <div class="faq-accordion">
+                    <div class="faq-item">
+                        <button class="faq-question">¿Cuál es el tiempo de respuesta promedio?</button>
+                        <div class="faq-answer">
+                            <p>Nuestro equipo se compromete a responder todas las consultas en un plazo máximo de 24 horas hábiles. Para clientes con soporte premium, el tiempo de respuesta garantizado es de 4 horas.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">¿Ofrecen demostraciones del producto?</button>
+                        <div class="faq-answer">
+                            <p>Sí, puedes solicitar una demostración personalizada a través de nuestro formulario de contacto. Una vez recibida tu solicitud, nuestro equipo comercial se pondrá en contacto para coordinar una sesión a tu medida.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">¿Tienen soporte en otros idiomas?</button>
+                        <div class="faq-answer">
+                            <p>Actualmente ofrecemos soporte en español, inglés y francés. Nuestro equipo está disponible en estos idiomas tanto para consultas comerciales como técnicas.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
         <footer>
           <div class="footer-container">
@@ -249,7 +243,7 @@
                   <ul class="footer-links">
                       <li><a href="./features.html">Características</a></li>
                       <li><a href="./prices.html">Precios</a></li>
-                      <li><a href="./services.html">Integraciones</a></li>
+                      <li><a href="#">Integraciones</a></li>
                       <li><a href="./updates.html">Actualizaciones</a></li>
                   </ul>
               </div>
@@ -260,7 +254,7 @@
                       <li><a href="#">Documentación</a></li>
                       <li><a href="#">Centro de ayuda</a></li>
                       <li><a href="./newsletters.html">Boletines</a></li>
-                      <li><a href="./updates.html">Blog</a></li>
+                      <li><a href="#">Blog</a></li>
                   </ul>
               </div>
               
@@ -269,7 +263,7 @@
                   <ul class="footer-links">
                       <li><a href="#">Sobre nosotros</a></li>
                       <li><a href="#">Trabaja con nosotros</a></li>
-                      <li><a href="./contact.html">Contacto</a></li>
+                      <li><a href="#">Contacto</a></li>
                       <li><a href="./terms.html">Términos y condiciones</a></li>
                   </ul>
               </div>
@@ -294,5 +288,5 @@
           </div>
         </footer>
         <script src="./../JS/script_bg.js"></script>
-        <script src="./../JS/script_services.js"></script>
+        <script src="./../JS/script_contact.js"></script>
     </body>

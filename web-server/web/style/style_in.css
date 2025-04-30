@@ -342,7 +342,6 @@ nav ul li a:hover {
     justify-content: space-between;
     align-items: center;
     padding: 4rem 8%;
-    background: linear-gradient(135deg, #6e8efb, #a777e3);
     color: white;
 }
 
@@ -353,17 +352,19 @@ nav ul li a:hover {
 .hero h1 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
+    color: var(--text-color);
 }
 
 .hero p {
     font-size: 1.2rem;
     margin-bottom: 2rem;
+    color: var(--text-color);
 }
 
 .cta-button {
-    background-color: #fff;
-    color: #6e8efb;
-    border: none;
+    background-color: var(--bg-color);
+    color: var(--text-color) ;
+    border: 3px solid #0079d8;
     padding: 0.8rem 1.8rem;
     font-size: 1rem;
     font-weight: bold;
