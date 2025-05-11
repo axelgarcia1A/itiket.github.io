@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>iTiket</title>
+        <link rel="stylesheet" type="text/css" href="./../style/style_bg.css"/>
+        <link rel="stylesheet" type="text/css" href="./../style/style_prices.css"/>
+        <link rel="icon" type="image/png" href="./../image/itiket_logo.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+    <body>
+        <header>
+          <div class="logo">
+            <a href="./../index.php">
+              <img class="headerlogo" src="./../image/itiket_logo.png"/>
+              <img class="headertext" src="./../image/itiket_text.png"/>
+            </a>
+          </div>
+          <div class="togglemode" aria-label="Toggle theme">
+          <label class="container">
+            <input checked="checked" type="checkbox" id="theme-toggle"/>
+            <div class="checkmark"></div>
+            <div class="torch">
+              <div class="head">
+                <div class="face top">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+                <div class="face left">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+                <div class="face right">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+              <div class="stick">
+                <div class="side side-left">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+                <div class="side side-right">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </label>
+        </div>
+          <div class="menu">
+          <nav>
+            <ul>
+              <li>
+                <a href="./services.html">SERVICES</a>
+              </li>
+              <hr/>
+              <li>
+                <a href="./features.html">FEATURES</a>
+              </li>
+              <hr/>
+              <li>
+                <a href="./updates.html">UPDATES</a>
+              </li>
+              <hr/>
+              <li>
+                <a href="./ticketing.html">TIKET</a>
+              </li>
+            </ul>
+          </nav>
+          </div>
+          <div class="login">
+            <button class="button">
+              <a href="./login.html">
+                <div class="text">
+                  Login
+                </div>
+              </a>
+            </button>
+            <button class="button">
+              <a href="./signup.html">
+                <div class="text">
+                  Sign Up
+                </div>
+              </a>
+            </button>
+          </div>
+        </header>
+        <main>
+            <section class="pricing-section">
+                <h1>Planes y Precios</h1>
+                <p class="subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
+                
+                <div class="pricing-toggle">
+                    <span>Mensual</span>
+                    <label class="switch">
+                        <input type="checkbox" id="billing-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Anual <span class="discount">(20% de descuento)</span></span>
+                </div>
+                
+                <div class="pricing-cards">
+                    <div class="pricing-card">
+                        <h3>Básico</h3>
+                        <div class="price">
+                            <span class="amount" data-monthly="9.99" data-annual="7.99">9.99</span>
+                            <span class="period">/mes</span>
+                        </div>
+                        <ul class="features">
+                            <li>✔ Soporte básico por email</li>
+                            <li>✔ Acceso a documentación</li>
+                            <li>✔ Actualizaciones de seguridad</li>
+                            <li>✖ Soporte prioritario</li>
+                            <li>✖ Acceso a nuevas funciones</li>
+                        </ul>
+                        <a href="./contact.html">
+                          <button class="select-plan">Elegir plan</button>
+                        </a>
+                    </div>
+                    
+                    <div class="pricing-card popular">
+                        <div class="popular-badge">Recomendado</div>
+                        <h3>Profesional</h3>
+                        <div class="price">
+                            <span class="amount" data-monthly="19.99" data-annual="15.99">19.99</span>
+                            <span class="period">/mes</span>
+                        </div>
+                        <ul class="features">
+                            <li>✔ Soporte prioritario 24/5</li>
+                            <li>✔ Acceso a nuevas funciones</li>
+                            <li>✔ Actualizaciones mensuales</li>
+                            <li>✔ Entrenamiento básico</li>
+                            <li>✖ Consultoría personalizada</li>
+                        </ul>
+                        <a href="./contact.html">
+                          <button class="select-plan">Elegir plan</button>
+                        </a>
+                    </div>
+                    
+                    <div class="pricing-card">
+                        <h3>Empresa</h3>
+                        <div class="price">
+                            <span class="amount" data-monthly="49.99" data-annual="39.99">49.99</span>
+                            <span class="period">/mes</span>
+                        </div>
+                        <ul class="features">
+                            <li>✔ Soporte 24/7</li>
+                            <li>✔ Acceso a todas las funciones</li>
+                            <li>✔ Actualizaciones semanales</li>
+                            <li>✔ Consultoría personalizada</li>
+                            <li>✔ Entrenamiento avanzado</li>
+                        </ul>
+                        <a href="./contact.html">
+                          <button class="select-plan">Elegir plan</button>
+                        </a>
+                    </div>
+                </div>   
+                <div class="enterprise-contact">
+                    <p>¿Necesitas un plan personalizado para tu empresa?</p>
+                    <a href="./contact.html">
+                      <button class="contact-button">Contáctanos</button>
+                    </a>
+                </div>
+            </section>
+        </main>
+        <footer>
+          <div class="footer-container">
+              <div class="footer-logo-section">
+                  <div class="footer-logo">
+                      <img src="./../image/itiket_logo.png" alt="iTiket Logo"/>
+                      <span class="footer-logo-text">iTiket</span>
+                  </div>
+                  <p class="footer-description">
+                      La solución completa para la gestión de tickets y atención al cliente. 
+                      Simplifica tus procesos y mejora la experiencia de tus usuarios.
+                  </p>
+              </div>
+              
+              <div class="footer-links-section">
+                <h3>Producto</h3>
+                <ul class="footer-links">
+                    <li><a href="./features.html">Características</a></li>
+                    <li><a href="./prices.html">Precios</a></li>
+                    <li><a href="./services.html">Integraciones</a></li>
+                    <li><a href="./updates.html">Actualizaciones</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links-section">
+                <h3>Recursos</h3>
+                <ul class="footer-links">
+                    <li><a href="./document.html">Documentación</a></li>
+                    <li><a href="./help.html">Centro de ayuda</a></li>
+                    <li><a href="./features.html">Boletines</a></li>
+                    <li><a href="./updates.html">Blog</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links-section">
+                <h3>Empresa</h3>
+                <ul class="footer-links">
+                    <li><a href="./aboutus.html">Sobre nosotros</a></li>
+                    <li><a href="./work.html">Trabaja con nosotros</a></li>
+                    <li><a href="./contact.html">Contacto</a></li>
+                    <li><a href="./terms.html">Términos y condiciones</a></li>
+                </ul>
+            </div>
+          </div>
+          
+          <div class="footer-bottom">
+              <p class="copyright">© 2023 iTiket. Todos los derechos reservados.</p>
+              <div class="social-links">
+                  <a href="#" class="social-link" aria-label="Facebook">
+                      <img src="./../image/facebook.png" alt="Facebook"/>
+                  </a>
+                  <a href="#" class="social-link" aria-label="Twitter">
+                      <img src="./../image/twitter.png" alt="Twitter"/>
+                  </a>
+                  <a href="#" class="social-link" aria-label="LinkedIn">
+                      <img src="./../image/linkedin.png" alt="LinkedIn"/>
+                  </a>
+                  <a href="#" class="social-link" aria-label="Instagram">
+                      <img src="./../image/instagram.png" alt="Instagram"/>
+                  </a>
+              </div>
+          </div>
+        </footer>
+        <script src="./../JS/script_bg.js"></script>
+        <script src="./../JS/script_prices.js"></script>
+    </body>

@@ -1,0 +1,261 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-image: url("./../image/fondo.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #0079d8;
+}
+
+.login-container {
+    background-color: rgba(0, 0, 0, 0.85);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 121, 216, 0.7);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    backdrop-filter: blur(5px);
+    border: 1px solid #0079d8;
+    animation: glow 2s infinite alternate;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.4s ease-out;
+}
+
+.login-container.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 10px rgba(0, 121, 216, 0.7); }
+    to { box-shadow: 0 0 20px rgba(0, 121, 216, 1); }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h1 {
+    color: #0079d8;
+    font-size: 28px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(0, 121, 216, 0.5);
+}
+
+.login-header p {
+    color: #a4ceee;
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #0079d8;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #0079d8;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: all 0.3s;
+    color: white;
+}
+
+.form-group input:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.error-message {
+    color: #ff6b6b;
+    font-size: 13px;
+    margin-top: 5px;
+    display: none;
+}
+
+.form-group.error .error-message {
+    display: block;
+}
+
+.form-group.error input {
+    border-color: #ff6b6b;
+    background-color: rgba(255, 107, 107, 0.1);
+}
+
+.login-button {
+    width: 100%;
+    padding: 14px;
+    background-color: #0079d8;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.login-button:hover {
+    background-color: #3a7bc8;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 121, 216, 0.4);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+.additional-links {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+}
+
+.additional-links p {
+    color: #a4ceee;
+    margin-bottom: 10px;
+}
+
+.additional-links a {
+    color: #0079d8;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.additional-links a:hover {
+    color: #4a90e2;
+    text-decoration: underline;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: rgba(0, 0, 0, 0.9);
+    margin: 10% auto;
+    padding: 25px;
+    border: 1px solid #0079d8;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 0 25px rgba(0, 121, 216, 0.6);
+    position: relative;
+}
+
+.modal-content h2 {
+    color: #0079d8;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.modal-content p {
+    color: #a4ceee;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.modal-content #userEmail {
+    color: #0079d8;
+    font-weight: bold;
+}
+
+.close-modal {
+    color: #a4ceee;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-modal:hover {
+    color: #0079d8;
+}
+
+.modal-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #0079d8;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 15px;
+}
+
+.modal-button:hover {
+    background-color: #3a7bc8;
+}
+
+/* Spinner */
+.spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success Animation */
+.success-animation {
+    animation: pulseSuccess 1.5s infinite;
+}
+
+@keyframes pulseSuccess {
+    0% { box-shadow: 0 0 0 0 rgba(0, 216, 121, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(0, 216, 121, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 216, 121, 0); }
+}

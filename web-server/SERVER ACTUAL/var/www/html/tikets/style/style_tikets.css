@@ -1,0 +1,122 @@
+/* Estilos para el listado de tikets */
+.tickets-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.page-header h1 {
+    margin: 0;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--border-color);
+    margin-bottom: 15px;
+}
+
+.empty-state p {
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.tickets-table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tickets-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tickets-table th, 
+.tickets-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tickets-table th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+.tickets-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.tickets-table tr.abierto {
+    background-color: rgba(255, 152, 0, 0.05);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-badge.abierto {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.status-badge.cerrado {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.actions {
+    white-space: nowrap;
+}
+
+.btn.small {
+    padding: 6px 12px;
+    font-size: 0.8em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tickets-table th, 
+    .tickets-table td {
+        padding: 8px 10px;
+        font-size: 0.9em;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5em;
+    }
+}
